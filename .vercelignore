@@ -1,0 +1,7 @@
+dist
+electron
+build
+data
+.next
+node_modules
+*.log
