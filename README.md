@@ -1,108 +1,280 @@
 # ReuniteAI
 
-## Project summary
+**Lead, not confirmation.**
 
-ReuniteAI is a disaster-response case-desk tool that helps volunteers turn messy missing-person and sighting reports into structured, redacted, explainable possible leads. It does not confirm identity. It supports trusted human review.
+ReuniteAI is a disaster reunification case-desk tool that helps trusted reviewers turn messy missing-person and sighting reports into safer, structured, human-reviewed leads.
 
-## V2 Product Clarification
+Built by **Lumen** for the **USAII Global AI Hackathon 2026 — Crisis-Action** challenge.
 
-ReuniteAI is a restricted case-desk tool, not a public crowd-investigation board. Public users can submit reports, but possible leads are meant for trusted reviewers such as shelter staff, trained volunteers, family liaisons, school/community center staff, or emergency responder partners. The prototype simulates this workflow using synthetic data.
+---
 
-## The one thing the AI does
+## Project Summary
 
-The AI structures and redacts messy reports. It flags risks and missing information. It does not make final decisions.
+During disasters like floods, wildfires, storms, or evacuations, missing-person and sighting reports come in quickly from many sources: families, shelter staff, trained volunteers, responder partners, school/community centers, and community witnesses.
 
-## Why AI, not just search
+The problem is that these reports are often:
 
-Crisis reports are messy, emotional, inconsistent, multilingual, and incomplete. AI helps extract fields and summarize text. Matching remains rule-based and explainable.
+* messy
+* incomplete
+* duplicated
+* emotionally written
+* inconsistent across sources
+* unsafe to share publicly
 
-## AI availability
+ReuniteAI helps organize those reports into safer possible leads while keeping humans in control.
 
-The app works in two modes:
+The app does **not** confirm identity.
+The app does **not** auto-contact anyone.
+The app does **not** publish exact locations.
+Every lead requires human review.
 
-1. Gemini extraction mode: Gemini structures messy report text and flags risks.
-2. Fallback mode: deterministic redaction and rule-based matching still run if Gemini is unavailable.
+---
 
-Fallback mode is a safety feature, not the main AI feature.
+## The One Thing the AI Does
 
-## System architecture
+ReuniteAI uses AI for one focused task:
 
-Report form -> Gemini processing -> deterministic redaction -> local storage -> rule-based matching -> human review
+> **Turn messy crisis report text into structured, redacted, risk-flagged report data.**
 
-## Responsible AI
+The AI helps with:
 
-| Failure mode | Who could be harmed | Mitigation |
-| --- | --- | --- |
-| False match | Families may receive false hope, panic, or misinformation. | Every result is labeled as a lead, not confirmation. The app shows evidence, conflicts, and missing information. Human review is required before action. |
-| Missed match | A real lead may be overlooked. | Low-confidence leads remain visible, missing fields are shown, and reviewers are encouraged to request more information instead of ignoring uncertain reports. |
-| Privacy exposure | Survivors, children, or vulnerable people could be located by unsafe actors. | Phone numbers, emails, exact addresses, apartment numbers, and precise locations are redacted or hidden by default. |
-| Bias against names, languages, or descriptions | People with non-Western names, unclear spellings, multilingual reports, or vague descriptions may be matched poorly. | The app does not rely on name alone. It compares age, broad location, time, clothing, language, and description evidence. It also explains what caused each lead. |
-| Over-reliance on AI | Volunteers may treat suggestions as truth. | The UI avoids percentages, avoids "confirmed" language, repeats warnings, and requires reviewers to check a human review box. |
-| Malicious misuse | Someone could try to locate a vulnerable person. | The app hides precise locations by default, redacts contact details, stores only synthetic demo data, and never auto-contacts anyone. |
-| AI hallucination or extraction error | Reviewers may see incorrect structured fields. | The original redacted notes remain visible, risks are flagged, fallback rules run after AI, and reviewers must verify facts manually. |
+* extracting fields from messy notes
+* summarizing reports
+* flagging missing information
+* flagging risky or uncertain details
+* helping redact sensitive information
 
-## Human oversight
+The AI does **not** decide whether two people are the same person.
 
-Every lead requires human review. The app never auto-contacts anyone.
+---
 
-## Tools used
+## Why AI Is Useful
+
+A simple spreadsheet or search form struggles when reports are written in different ways.
+
+Example:
+
+* “Teen girl in blue hoodie near the shelter”
+* “Maya, maybe 15 or 16, seen near the Riverside bus pickup”
+* “Young Arabic-speaking girl with gray backpack came through gym registration”
+
+These reports might be related, but the wording is messy and inconsistent.
+
+AI is useful because it can structure unorganized text into fields that a reviewer can actually compare. After that, ReuniteAI uses deterministic rule-based matching so the reasoning stays explainable.
+
+---
+
+## How It Works
+
+```txt
+Report Form
+   ↓
+Gemini NLP Extraction
+   ↓
+Deterministic Redaction
+   ↓
+Local Synthetic Report Storage
+   ↓
+Rule-Based Matching Engine
+   ↓
+Restricted Human Review Queue
+```
+
+---
+
+## Core Workflow
+
+1. A reporter submits a missing-person or found/sighting report.
+2. Gemini structures the messy notes and flags risks.
+3. Deterministic redaction checks for sensitive details.
+4. The rule-based matching engine compares missing reports against sighting reports.
+5. A possible lead is shown to a trusted reviewer.
+6. The reviewer checks evidence, conflicts, and missing information.
+7. The reviewer decides whether to request more information, reject the lead, or escalate it.
+
+---
+
+## Human-in-the-Loop Design
+
+ReuniteAI is designed as a restricted case-desk tool, not a public crowd-investigation board.
+
+### Reporters
+
+Reporters may be family members, witnesses, shelter guests, or community members. They can submit reports, but they cannot browse the lead queue.
+
+### Reviewers
+
+Reviewers may be shelter staff, trained volunteers, school/community center staff, family-liaison workers, or responder partners. They review possible leads and check evidence before any action is taken.
+
+### Coordinators
+
+Coordinators decide whether a lead should be escalated to official responders or trusted organizations.
+
+Humans stay in control at the highest-risk point: **before a lead becomes action.**
+
+---
+
+## Matching Engine
+
+ReuniteAI’s matching engine is rule-based and explainable.
+
+It compares reports using:
+
+* name or nickname similarity
+* age range overlap
+* broad location similarity
+* timeline consistency
+* clothing and description overlap
+* language overlap
+* source reliability
+
+The app returns lead strength labels:
+
+* Low
+* Medium
+* High
+
+It does **not** return percentages because percentages can create false confidence.
+
+Even a high-strength lead is still unconfirmed.
+
+---
+
+## Responsible AI Guardrails
+
+ReuniteAI was designed around this question:
+
+> If the AI gets it wrong, who could be harmed, and what design choices reduce that risk?
+
+| Risk                                  | Who Could Be Harmed                                                                             | Design Mitigation                                                                                                                       |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| False match                           | Families may receive false hope, panic, or misinformation.                                      | Every result is labeled as a lead, not confirmation. Evidence, conflicts, and missing information are shown before review.              |
+| Missed match                          | A real lead may be overlooked.                                                                  | Low and medium leads remain visible, and missing fields are shown so reviewers can request more information.                            |
+| Privacy exposure                      | Survivors, children, or vulnerable people could be located by unsafe actors.                    | Phone numbers, exact addresses, room numbers, and private details are redacted where detected. Precise locations are hidden by default. |
+| Over-reliance on AI                   | Reviewers may treat AI output as truth.                                                         | The app avoids percentages, avoids “confirmed” language, and requires human review before action.                                       |
+| Bias from names/language/descriptions | People with non-Western names, unclear spelling, or multilingual reports may be matched poorly. | Matching does not rely on name alone. It also compares age, location, timeline, clothing, language, and description evidence.           |
+| AI hallucination or extraction error  | Reviewers may see incorrect structured fields.                                                  | The original redacted notes remain visible, deterministic redaction still runs, and reviewers must verify before escalation.            |
+
+---
+
+## Data Privacy
+
+This prototype uses **synthetic demo data only**.
+
+No real missing-person cases are included.
+No real personal data is required to demo the app.
+No public lead browsing is enabled.
+No automatic contact is performed.
+
+---
+
+## AI Fallback Mode
+
+ReuniteAI works in two modes:
+
+### Gemini Extraction Mode
+
+Gemini structures messy report text, summarizes notes, redacts sensitive information, and flags risks.
+
+### Fallback Mode
+
+If Gemini is unavailable or the API key is missing, deterministic redaction and rule-based matching still run.
+
+Fallback mode is a safety backup, not the main AI feature.
+
+---
+
+## Tech Stack
 
 * Next.js
 * React
 * Tailwind CSS
 * Google Gemini API
-* @google/genai
-* Synthetic demo data
+* Next.js API routes
+* Local JSON demo storage
+* Deterministic matching logic
+* Synthetic data
 
-## Data
+---
 
-Only synthetic data is used. No real missing-person data.
+## Tools and AI Disclosure
 
-## How to run
+Google Gemini API was used for report structuring, summarization, risk flagging, and redaction support.
 
-1. `npm install`
-2. Create `.env.local`
-3. Add `GEMINI_API_KEY=YOUR_API_KEY_HERE` if available
-4. `npm run dev`
-5. Open `http://localhost:3000`
+The matching engine is deterministic and rule-based.
 
-The app still works without a Gemini key. It uses deterministic fallback redaction and rule-based matching.
+The demo uses synthetic local data only.
 
-## Vercel deployment
+---
 
-ReuniteAI is a Next.js website. Deploy it to Vercel as a standard Next project.
+## Running Locally
 
-1. Import the project into Vercel.
-2. Set the build command to `npm run build` if Vercel does not auto-detect it.
-3. Add `GEMINI_API_KEY` in Vercel Project Settings -> Environment Variables.
-4. Redeploy after adding or changing the key.
+### 1. Clone the repo
 
-The API key is read only from environment variables. The website UI does not expose a key-management form.
+```bash
+git clone https://github.com/lumenali/ReuniteAI.git
+cd ReuniteAI
+```
 
-Common AI setup failure reasons:
+### 2. Install dependencies
 
-* `.env.local` missing
-* dev server or deployment was not restarted after adding key
-* wrong environment variable name
-* package not installed
-* invalid API key
-* model name unavailable
+```bash
+npm install
+```
 
-## Demo script
+### 3. Create environment file
 
-1. Open dashboard and explain the problem.
-2. Open Settings and reset synthetic demo data if needed.
-3. Submit or view a messy report.
-4. Show how AI structures and redacts it.
-5. Open Lead Review Queue.
-6. Expand a lead and show evidence, conflicts, missing info.
-7. Open Reviewer Decision Desk and save a review receipt.
-8. End with: "ReuniteAI helps people review leads faster, but it never replaces human verification."
+Create a file called `.env.local` in the project root:
 
-## Development note
+```txt
+GEMINI_API_KEY=your_key_here
+```
 
-AI coding assistance was used during implementation. The project design, safety decisions, testing, and final submission are the team's responsibility.
+Do not expose this key in frontend code.
 
-## Judge summary
+### 4. Run the app
 
-ReuniteAI is a disaster-response support tool that helps volunteers organize messy missing-person and sighting reports into explainable possible leads. The AI does not identify people or make decisions. It only structures messy text, redacts sensitive information, summarizes notes, and flags risks. Matching is done with transparent rules, and every result shows evidence, conflicts, and missing information. The app is designed around the failure question: if the AI is wrong, a human reviewer sees warnings, checks conflicts, follows a review checklist, and no family is contacted automatically.
+```bash
+npm run dev
+```
+
+Open:
+
+```txt
+http://localhost:3000
+```
+
+---
+
+## Environment Variables
+
+| Variable         | Purpose                                           |
+| ---------------- | ------------------------------------------------- |
+| `GEMINI_API_KEY` | Server-side key used for Gemini report processing |
+
+The app still runs without this key, but AI extraction will switch to fallback mode.
+
+---
+
+## Project Links
+
+Live Demo: `ADD_DEPLOYED_LINK_HERE`
+Demo Video: `ADD_VIDEO_LINK_HERE`
+GitHub: `https://github.com/lumenali/ReuniteAI`
+
+---
+
+## Team
+
+Built by **Lumen**.
+
+Team members:
+
+* Ali Kassem
+* Naethan Nel
+
+---
+
+## Judge Summary
+
+ReuniteAI is a disaster-response support tool that helps trusted reviewers organize messy missing-person and sighting reports into explainable possible leads. The AI does not identify people or make decisions. It only structures messy text, redacts sensitive information, summarizes notes, and flags risks. Matching is done with transparent rules, and every result shows evidence, conflicts, and missing information. The app is designed around the failure question: if the AI is wrong, a human reviewer sees warnings, checks conflicts, follows a review checklist, and no family is contacted automatically.
